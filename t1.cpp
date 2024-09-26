@@ -1,13 +1,15 @@
 #include <iostream>
+#include <string>
 
 using namespace std;
 
 // Deklarasi tiap fungsi
-void cipherSubtitusiView();
+void scytaleView();
 void vigenereCipherView();
 void enkripsiModern1View();
 void enkripsiModern2View();
 void superEnkripsiView();
+string scytaleAlgorithm(int status, int key, string data);
 
 int main()
 {
@@ -18,7 +20,7 @@ int main()
         cout << "+==============================+\n";
         cout << "| TUGAS KRIPTOGRAFI KELOMPOK 5 |\n";
         cout << "+==============================+\n";
-        cout << "| 1. Cipher Subtitusi          |\n";
+        cout << "| 1. SCYTALE                   |\n";
         cout << "| 2. Vigenere Cipher           |\n";
         cout << "| 3. Enkripsi Modern 1         |\n";
         cout << "| 4. Enkripsi Modern 2         |\n";
@@ -31,7 +33,7 @@ int main()
 
         if (pilihan == 1)
         {
-            cipherSubtitusiView();
+            scytaleView();
             system("pause");
         }
         else if (pilihan == 2)
@@ -64,19 +66,18 @@ int main()
 }
 
 /*-------------------- Awal Fungsi Untuk Tampilan --------------------*/
-
-void cipherSubtitusiView()
+void scytaleView()
 {
     system("cls");
-    int pilihan;
+    int pilihan, kunci;
     string data;
 
-    cout << "+==================+\n";
-    cout << "| CIPHER SUBTITUSI |\n";
-    cout << "+==================+\n";
-    cout << "| 1. Enkripsi Data |\n";
-    cout << "| 2. Dekripsi Data |\n";
-    cout << "+==================+\n";
+    cout << "+===================+\n";
+    cout << "|      SCYTALE      |\n";
+    cout << "+===================+\n";
+    cout << "| 1. Enkripsi Data  |\n";
+    cout << "| 2. Dekripsi Data  |\n";
+    cout << "+===================+\n";
     cout << "  Pilih Menu : ";
     cin >> pilihan;
     cin.ignore();
@@ -86,17 +87,21 @@ void cipherSubtitusiView()
     {
         cout << "Masukkan data yang ingin di-enkripsi : ";
         getline(cin, data);
-        cout << "Hasil enkripsi : " << data << endl;
+        cout << "Masukkan kunci enkripsi : ";
+        cin >> kunci;
+        cout << "\nHasil enkripsi : " << scytaleAlgorithm(pilihan, kunci, data) << endl;
     }
     else if (pilihan == 2)
     {
         cout << "Masukkan data yang ingin di-dekripsi : ";
         getline(cin, data);
-        cout << "Hasil enkripsi : " << data << endl;
+        cout << "Masukkan kunci dekripsi : ";
+        cin >> kunci;
+        cout << "\nHasil dekripsi : " << scytaleAlgorithm(pilihan, kunci, data) << endl;
     }
     else
     {
-        cout << "Keluar dari Cipher Subtitusi.\n";
+        cout << "Keluar dari Scytale.\n";
     }
 }
 
@@ -121,13 +126,13 @@ void vigenereCipherView()
     {
         cout << "Masukkan data yang ingin di-enkripsi : ";
         getline(cin, data);
-        cout << "Hasil enkripsi : " << data << endl;
+        cout << "\nHasil enkripsi : " << data << endl;
     }
     else if (pilihan == 2)
     {
         cout << "Masukkan data yang ingin di-dekripsi : ";
         getline(cin, data);
-        cout << "Hasil enkripsi : " << data << endl;
+        cout << "Hasil dekripsi : " << data << endl;
     }
     else
     {
@@ -162,7 +167,7 @@ void enkripsiModern1View()
     {
         cout << "Masukkan data yang ingin di-dekripsi : ";
         getline(cin, data);
-        cout << "Hasil enkripsi : " << data << endl;
+        cout << "Hasil dekripsi : " << data << endl;
     }
     else
     {
@@ -197,7 +202,7 @@ void enkripsiModern2View()
     {
         cout << "Masukkan data yang ingin di-dekripsi : ";
         getline(cin, data);
-        cout << "Hasil enkripsi : " << data << endl;
+        cout << "Hasil dekripsi : " << data << endl;
     }
     else
     {
@@ -226,22 +231,78 @@ void superEnkripsiView()
     {
         cout << "Masukkan data yang ingin di-enkripsi : ";
         getline(cin, data);
-        cout << "Hasil enkripsi : " << data << endl;
+        cout << "Hasil enkripsi : " << data[10] << endl;
     }
     else if (pilihan == 2)
     {
         cout << "Masukkan data yang ingin di-dekripsi : ";
         getline(cin, data);
-        cout << "Hasil enkripsi : " << data << endl;
+        cout << "Hasil dekripsi : " << data << endl;
     }
     else
     {
-        cout << "Keluar dari Vigenere Cipher.\n";
+        cout << "Keluar dari Super Enkripsi.\n";
     }
 }
-
 /*-------------------- Akhir Fungsi Untuk Tampilan --------------------*/
 
 /*-------------------- Awal Fungsi Untuk Algoritma  --------------------*/
+string scytaleAlgorithm(int status, int key, string data)
+{
+    string value = "";
+    int baris = data.length() % key != 0 ? (data.length() / key) + 1 : data.length() / key;
+    int index = 0;
 
+    if (key > data.length())
+    {
+        cout << "Panjang key harus kurang dari jumlah karakter data!";
+        return "ERROR!!!";
+    }
+
+    if (status == 1) // STATUS UNTUK ENKRIPSI DATA (PPT 3 PAGE 31) => KALO BINGUNG, COMMENT COUTNYA DIBUKA AJA
+    {
+        string arrayData[baris][key];
+        for (int i = 0; i < baris; i++)
+        {
+            for (int j = 0; j < key; j++)
+            {
+                arrayData[i][j] = index < data.length() ? data[index] : ' ';
+                // cout << arrayData[i][j];
+                index++;
+            }
+            // cout << "|\n";
+        }
+
+        for (int i = 0; i < key; i++) // PROSES ENKRIPSINYA
+        {
+            for (int j = 0; j < baris; j++)
+            {
+                value = value + (arrayData[j][i]);
+            }
+        }
+    }
+    else // STATUS UNTUK DEKRIPSI DATA
+    {
+        string arrayData[key][baris]; // BUAT RUMUSNYA (PPT 3 PAGE 32) => KALO BINGUNG, COMMENT COUTNYA DIBUKA AJA
+        for (int i = 0; i < key; i++)
+        {
+            for (int j = 0; j < baris; j++)
+            {
+                arrayData[i][j] = data[index];
+                // cout << arrayData[i][j];
+                index++;
+            }
+            // cout << "|\n";
+        }
+
+        for (int i = 0; i < baris; i++) // PROSES DEKRIPSINYA
+        {
+            for (int j = 0; j < key; j++)
+            {
+                value = value + arrayData[j][i];
+            }
+        }
+    }
+    return value;
+}
 /*-------------------- Akhir Fungsi Untuk Algoritma  --------------------*/
