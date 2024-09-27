@@ -1,15 +1,20 @@
 #include <iostream>
 #include <string>
+#include <algorithm> // for using transform
+#include <cctype> // for using toupper
 
 using namespace std;
 
-// Deklarasi tiap fungsi
+// Deklarasi tiap fungsi tampilan
 void scytaleView();
 void vigenereCipherView();
 void enkripsiModern1View();
 void enkripsiModern2View();
 void superEnkripsiView();
+
+// Deklarasi tiap fungsi algoritma
 string scytaleAlgorithm(int status, int key, string data);
+string caesarCipher(int status, string kunci, string data);
 
 int main()
 {
@@ -110,6 +115,7 @@ void vigenereCipherView()
     system("cls");
     int pilihan;
     string data;
+    string kunci;
 
     cout << "+===================+\n";
     cout << "|  VIGENERE CIPHER  |\n";
@@ -126,13 +132,19 @@ void vigenereCipherView()
     {
         cout << "Masukkan data yang ingin di-enkripsi : ";
         getline(cin, data);
-        cout << "\nHasil enkripsi : " << data << endl;
+        cout << "Masukkan kunci enkripsi : ";
+        getline(cin, kunci);
+
+        cout << "\nHasil enkripsi : " << caesarCipher(1, kunci, data) << endl;
     }
     else if (pilihan == 2)
     {
         cout << "Masukkan data yang ingin di-dekripsi : ";
         getline(cin, data);
-        cout << "Hasil dekripsi : " << data << endl;
+        cout << "Masukkan kunci dekripsi : ";
+        getline(cin, kunci);
+
+        cout << "Hasil dekripsi : " << caesarCipher(2, kunci, data) << endl;
     }
     else
     {
@@ -301,6 +313,58 @@ string scytaleAlgorithm(int status, int key, string data)
             {
                 value = value + arrayData[j][i];
             }
+        }
+    }
+    return value;
+}
+
+string caesarCipher(int status, string kunci, string data)
+{
+    if(kunci.length() > data.length())
+    {
+        cout << "Panjang key harus kurang dari jumlah karakter data!";
+        return "ERROR!!!";
+    }
+
+    string value = "";
+    int indexKey = 0;
+    int awal = 65;
+    
+    transform(data.begin(), data.end(), data.begin(), ::toupper);
+    transform(kunci.begin(), kunci.end(), kunci.begin(), ::toupper);
+    int lengthKey = kunci.length();
+
+    if(status == 1)
+    {
+        for(int i = 0; i < data.length(); i++)
+        {
+            if(data[i] == ' ')
+            {
+                value = value + ' ';
+                continue;
+            }
+            indexKey = indexKey == lengthKey ? 0 : indexKey;
+            value = value + char((((int(data[i]) - awal) + (int(kunci[indexKey]) - awal)) % 26) + awal);
+            indexKey++;
+        }
+    }else
+    {
+        for(int i = 0; i < data.length(); i++)
+        {
+            if(data[i] == ' ')
+            {
+                value = value + ' ';
+                continue;
+            }
+            indexKey = indexKey == lengthKey ? 0 : indexKey;
+            value = value + char(
+                (
+                    (
+                        (int(data[i]) - awal) + (int(kunci[indexKey]) - awal) > 26 ? abs((int(data[i]) - awal) + (int(kunci[indexKey]) - awal)) : (int(data[i]) - awal) + (int(kunci[indexKey]) - awal)
+                    ) % 26 
+                ) + awal
+            );
+            indexKey++;
         }
     }
     return value;
