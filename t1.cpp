@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <algorithm> // for using transform
-#include <cctype> // for using toupper
+#include <cctype>    // for using toupper
 
 using namespace std;
 
@@ -320,7 +320,7 @@ string scytaleAlgorithm(int status, int key, string data)
 
 string caesarCipher(int status, string kunci, string data)
 {
-    if(kunci.length() > data.length())
+    if (kunci.length() > data.length())
     {
         cout << "Panjang key harus kurang dari jumlah karakter data!";
         return "ERROR!!!";
@@ -329,16 +329,16 @@ string caesarCipher(int status, string kunci, string data)
     string value = "";
     int indexKey = 0;
     int awal = 65;
-    
+
     transform(data.begin(), data.end(), data.begin(), ::toupper);
     transform(kunci.begin(), kunci.end(), kunci.begin(), ::toupper);
     int lengthKey = kunci.length();
 
-    if(status == 1)
+    if (status == 1)
     {
-        for(int i = 0; i < data.length(); i++)
+        for (int i = 0; i < data.length(); i++)
         {
-            if(data[i] == ' ')
+            if (data[i] == ' ')
             {
                 value = value + ' ';
                 continue;
@@ -347,32 +347,24 @@ string caesarCipher(int status, string kunci, string data)
             value = value + char((((int(data[i]) - awal) + (int(kunci[indexKey]) - awal)) % 26) + awal);
             indexKey++;
         }
-    }else
+    }
+    else
     {
-        for(int i = 0; i < data.length(); i++)
+        for (int i = 0; i < data.length(); i++)
         {
-            if(data[i] == ' ')
+            if (data[i] == ' ')
             {
                 value = value + ' ';
                 continue;
             }
             indexKey = indexKey == lengthKey ? 0 : indexKey;
             value = value + char(
-                (
-                    (
-                        (int(data[i]) - awal) - (int(kunci[indexKey]) - awal) + 26
-                    ) % 26
-                ) + awal
-            );
+                                (
+                                    (
+                                        (int(data[i]) - awal) - (int(kunci[indexKey]) - awal) + 26) %
+                                    26) +
+                                awal);
             indexKey++;
-            // value = value + char(
-            //     (
-            //         (
-            //             (int(data[i]) - awal) + (int(kunci[indexKey]) - awal) > 26 ? abs((int(data[i]) - awal) + (int(kunci[indexKey]) - awal)) : (int(data[i]) - awal) + (int(kunci[indexKey]) - awal)
-            //         ) % 26 
-            //     ) + awal
-            // );
-            // indexKey++;
         }
     }
     return value;
