@@ -2,19 +2,24 @@
 #include <string>
 #include <algorithm> // for using transform
 #include <cctype>    // for using toupper
+#include <bitset>    // for convert to biner
 
 using namespace std;
+
+string DATACHAR = "0123456789 abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 // Deklarasi tiap fungsi tampilan
 void scytaleView();
 void vigenereCipherView();
-void enkripsiModern1View();
+void vernamCipherView();
 void enkripsiModern2View();
 void superEnkripsiView();
 
 // Deklarasi tiap fungsi algoritma
 string scytaleAlgorithm(int status, int key, string data);
 string caesarCipher(int status, string kunci, string data);
+string vernamCipher(int status, string data, string key);
+string generateRandomKey(int length);
 
 int main()
 {
@@ -27,7 +32,7 @@ int main()
         cout << "+==============================+\n";
         cout << "| 1. SCYTALE                   |\n";
         cout << "| 2. CAESAR Cipher             |\n";
-        cout << "| 3. Enkripsi Modern 1         |\n";
+        cout << "| 3. VERNAM Cipher             |\n";
         cout << "| 4. Enkripsi Modern 2         |\n";
         cout << "| 5. Super Enkripsi            |\n";
         cout << "+==============================+\n";
@@ -48,7 +53,7 @@ int main()
         }
         else if (pilihan == 3)
         {
-            enkripsiModern1View();
+            vernamCipherView();
             system("pause");
         }
         else if (pilihan == 4)
@@ -152,14 +157,15 @@ void vigenereCipherView()
     }
 }
 
-void enkripsiModern1View()
+void vernamCipherView()
 {
     system("cls");
     int pilihan;
     string data;
+    string kunci;
 
     cout << "+=====================+\n";
-    cout << "|  ENKRIPSI MODERN 1  |\n";
+    cout << "|    VERNAM CIPHER    |\n";
     cout << "+=====================+\n";
     cout << "| 1. Enkripsi Data    |\n";
     cout << "| 2. Dekripsi Data    |\n";
@@ -173,17 +179,23 @@ void enkripsiModern1View()
     {
         cout << "Masukkan data yang ingin di-enkripsi : ";
         getline(cin, data);
-        cout << "Hasil enkripsi : " << data << endl;
+        kunci = generateRandomKey(data.length());
+
+        cout << "Kunci hasil genarate : " << kunci << endl;
+        cout << "Hasil enkripsi : " << vernamCipher(pilihan, data, kunci) << endl;
     }
     else if (pilihan == 2)
     {
         cout << "Masukkan data yang ingin di-dekripsi : ";
         getline(cin, data);
-        cout << "Hasil dekripsi : " << data << endl;
+        cout << "Masukkan kunci dekripsi : ";
+        getline(cin, kunci);
+
+        cout << "Hasil dekripsi : " << vernamCipher(pilihan, data, kunci) << endl;
     }
     else
     {
-        cout << "Keluar dari Vigenere Cipher.\n";
+        cout << "Keluar dari Vernam Cipher.\n";
     }
 }
 
@@ -344,6 +356,7 @@ string caesarCipher(int status, string kunci, string data)
                 continue;
             }
             indexKey = indexKey == lengthKey ? 0 : indexKey;
+
             value = value + char((((int(data[i]) - awal) + (int(kunci[indexKey]) - awal)) % 26) + awal);
             indexKey++;
         }
@@ -358,14 +371,51 @@ string caesarCipher(int status, string kunci, string data)
                 continue;
             }
             indexKey = indexKey == lengthKey ? 0 : indexKey;
-            value = value + char(
-                                (
-                                    (
-                                        (int(data[i]) - awal) - (int(kunci[indexKey]) - awal) + 26) %
-                                    26) +
-                                awal);
+
+            value = value + char(((int(data[i]) - awal) - (int(kunci[indexKey]) - awal) + 26) % 26 + awal);
             indexKey++;
         }
+    }
+    return value;
+}
+
+string generateRandomKey(int length)
+{
+    string key = "";
+    for (int i = 0; i < length; i++)
+    {
+        if (rand() % 2) // Jika angka 1
+        {
+            key += 'A' + rand() % 26; // Menghasilkan huruf kapital antara 'A' dan 'Z'
+        }
+        else
+        {
+            key += 'a' + rand() % 26; // Menghasilkan huruf kecil antara 'a' dan 'z'
+        }
+    }
+
+    return key;
+}
+
+string vernamCipher(int status, string data, string key)
+{
+    string value = "";
+
+    // int indexChar;
+    if (data.length() != key.length())
+    {
+        cout << "Panjang data dengan panjang kunci tidak sama, mohon cek kembali.\n";
+        return "";
+    }
+    else if (data.empty())
+    {
+        cout << "Data tidak boleh kosong.\n";
+        return "";
+    }
+
+    for (int i = 0; i < data.length(); i++)
+    {
+        value += DATACHAR[DATACHAR.find(data[i]) ^ DATACHAR.find(key[i])];
     }
     return value;
 }
