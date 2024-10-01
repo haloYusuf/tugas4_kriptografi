@@ -538,18 +538,17 @@ string caesarCipher(int status, string kunci, string data)
 string generateRandomKey(int length)
 {
     string key = "";
+    int random;
     for (int i = 0; i < length; i++)
     {
-        if (rand() % 2) // Jika angka 1
+        random = rand() % 63;
+        if (random == 10)
         {
-            key += 'A' + rand() % 26; // Menghasilkan huruf kapital antara 'A' dan 'Z'
+            i--;
+            continue;
         }
-        else
-        {
-            key += 'a' + rand() % 26; // Menghasilkan huruf kecil antara 'a' dan 'z'
-        }
+        key += DATACHAR[random];
     }
-
     return key;
 }
 
@@ -557,13 +556,7 @@ string vernamCipher(string data, string key)
 {
     string value = "";
 
-    // int indexChar;
-    if (data.length() != key.length())
-    {
-        cout << "Panjang data dengan panjang kunci tidak sama, mohon cek kembali.\n";
-        return "";
-    }
-    else if (data.empty())
+    if (data.empty())
     {
         cout << "Data tidak boleh kosong.\n";
         return "";
