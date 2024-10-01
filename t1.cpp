@@ -3,6 +3,8 @@
 #include <algorithm> // for using transform
 #include <cctype>    // for using toupper
 #include <bitset>    // for convert to biner
+#include <cmath>
+#include <iomanip> // Untuk setfill dan setw
 
 using namespace std;
 
@@ -12,14 +14,19 @@ string DATACHAR = "0123456789 abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWX
 void scytaleView();
 void vigenereCipherView();
 void vernamCipherView();
-void enkripsiModern2View();
+void sraCipherView();
 void superEnkripsiView();
 
 // Deklarasi tiap fungsi algoritma
 string scytaleAlgorithm(int status, int key, string data);
 string caesarCipher(int status, string kunci, string data);
-string vernamCipher(int status, string data, string key);
+string vernamCipher(string data, string key);
 string generateRandomKey(int length);
+int gcd(int a, int b);
+long long modExp(long long base, long long exp, long long mod);
+long long encryptChar(char ch, long long e, long long n);
+char decryptChar(long long cipher, long long d, long long n);
+string sraEncryptAlgorithm(string data, int e, int n);
 
 int main()
 {
@@ -33,7 +40,7 @@ int main()
         cout << "| 1. SCYTALE                   |\n";
         cout << "| 2. CAESAR Cipher             |\n";
         cout << "| 3. VERNAM Cipher             |\n";
-        cout << "| 4. Enkripsi Modern 2         |\n";
+        cout << "| 4. SRA Cipher                |\n";
         cout << "| 5. Super Enkripsi            |\n";
         cout << "+==============================+\n";
 
@@ -58,7 +65,7 @@ int main()
         }
         else if (pilihan == 4)
         {
-            enkripsiModern2View();
+            sraCipherView();
             system("pause");
         }
         else if (pilihan == 5)
@@ -182,7 +189,7 @@ void vernamCipherView()
         kunci = generateRandomKey(data.length());
 
         cout << "Kunci hasil genarate : " << kunci << endl;
-        cout << "Hasil enkripsi : " << vernamCipher(pilihan, data, kunci) << endl;
+        cout << "Hasil enkripsi : " << vernamCipher(data, kunci) << endl;
     }
     else if (pilihan == 2)
     {
@@ -191,7 +198,7 @@ void vernamCipherView()
         cout << "Masukkan kunci dekripsi : ";
         getline(cin, kunci);
 
-        cout << "Hasil dekripsi : " << vernamCipher(pilihan, data, kunci) << endl;
+        cout << "Hasil dekripsi : " << vernamCipher(data, kunci) << endl;
     }
     else
     {
@@ -199,34 +206,93 @@ void vernamCipherView()
     }
 }
 
-void enkripsiModern2View()
+void sraCipherView()
 {
     system("cls");
     int pilihan;
+    int prima1, prima2;
     string data;
 
     cout << "+=====================+\n";
-    cout << "|  ENKRIPSI MODERN 2  |\n";
+    cout << "|         SRA         |\n";
     cout << "+=====================+\n";
     cout << "| 1. Enkripsi Data    |\n";
     cout << "| 2. Dekripsi Data    |\n";
     cout << "+=====================+\n";
     cout << "  Pilih Menu : ";
     cin >> pilihan;
-    cin.ignore();
     system("cls");
 
     if (pilihan == 1)
     {
-        cout << "Masukkan data yang ingin di-enkripsi : ";
-        getline(cin, data);
-        cout << "Hasil enkripsi : " << data << endl;
+        cout << "Masukkan bilangan prima p: ";
+        cin >> prima1;
+        cout << "Masukkan bilangan prima q: ";
+        cin >> prima2;
+        cin.ignore();
+
+        // Langkah 2: Hitung n dan phi(n)
+        long long n = prima1 * prima2;
+
+        // 3. Hitung totient: φ(n) = (p-1)*(q-1)
+        long long phi = (prima1 - 1) * (prima2 - 1);
+
+        // 4. Pilih e (public key) yang relatif prima dengan φ(n)
+        long long e = 17; // Public key
+        // Pastikan gcd(e, phi) = 1
+        while (gcd(e, phi) != 1)
+        {
+            e++;
+        }
+
+        // 5. Hitung d (private key) dengan d ≡ e^(-1) mod φ(n)
+        long long d = 0;
+        long long k = 1;
+        // Temukan d sedemikian rupa sehingga (d * e) % phi == 1
+        while ((1 + k * phi) % e != 0)
+        {
+            k++;
+        }
+        d = (1 + k * phi) / e;
+
+        cout << "Public Key (e, n): (" << e << ", " << n << ")\n";
+        cout << "Private Key (d, n): (" << d << ", " << n << ")\n";
+
+        // Input pesan yang ingin dienkripsi
+        string message;
+        cout << "Masukkan pesan: ";
+        getline(cin, message);
+
+        // Enkripsi setiap karakter dalam pesan
+        cout << "Hasil Enkripsi: " << sraEncryptAlgorithm(message, e, n);
+        cout << endl;
     }
     else if (pilihan == 2)
     {
-        cout << "Masukkan data yang ingin di-dekripsi : ";
-        getline(cin, data);
-        cout << "Hasil dekripsi : " << data << endl;
+        int n, d, blockCount;
+        cout << "Masukkan nilai n dan d untuk proses dekripsi." << endl;
+        cout << "Masukkan nilai n: ";
+        cin >> n;
+        cin.ignore();
+        cout << "Masukkan nilai d: ";
+        cin >> d;
+        cin.ignore();
+        cout << "Masukkan total block: ";
+        cin >> blockCount;
+        cin.ignore();
+
+        cout << "Masukkan cipherteks untuk didekripsi (masukkan blok-blok angka): " << endl;
+        int cipherBlock; // Menyimpan hasil dekripsi
+        string decryptedMessage = "";
+        for (int i = 0; i < blockCount; i++)
+        {
+            cin >> cipherBlock;
+            decryptedMessage += decryptChar(cipherBlock, d, n); // Dekripsi
+        }
+        cout << endl;
+
+        // Konversi angka hasil dekripsi menjadi string
+        cout << "Pesan setelah dekripsi: " << decryptedMessage << endl;
     }
     else
     {
@@ -253,15 +319,101 @@ void superEnkripsiView()
 
     if (pilihan == 1)
     {
+        int scytaleKey, prima1, prima2;
+        string caesarKey, vernamKey;
+
         cout << "Masukkan data yang ingin di-enkripsi : ";
         getline(cin, data);
-        cout << "Hasil enkripsi : " << data[10] << endl;
+
+        cout << "Masukkan kunci scytale : ";
+        cin >> scytaleKey;
+        cin.ignore();
+        data = scytaleAlgorithm(1, scytaleKey, data);
+
+        cout << "Masukkan kunci caesar : ";
+        getline(cin, caesarKey);
+        data = caesarCipher(1, caesarKey, data);
+
+        vernamKey = generateRandomKey(data.length());
+        cout << "Vernam key = " << vernamKey << endl;
+        data = vernamCipher(vernamKey, data);
+
+        // Mulai SRA
+        cout << "Masukkan bilangan prima p: ";
+        cin >> prima1;
+        cout << "Masukkan bilangan prima q: ";
+        cin >> prima2;
+        cin.ignore();
+
+        // Langkah 2: Hitung n dan phi(n)
+        long long n = prima1 * prima2;
+
+        // 3. Hitung totient: φ(n) = (p-1)*(q-1)
+        long long phi = (prima1 - 1) * (prima2 - 1);
+
+        // 4. Pilih e (public key) yang relatif prima dengan φ(n)
+        long long e = 17; // Public key
+        // Pastikan gcd(e, phi) = 1
+        while (gcd(e, phi) != 1)
+        {
+            e++;
+        }
+
+        // 5. Hitung d (private key) dengan d ≡ e^(-1) mod φ(n)
+        long long d = 0;
+        long long k = 1;
+        // Temukan d sedemikian rupa sehingga (d * e) % phi == 1
+        while ((1 + k * phi) % e != 0)
+        {
+            k++;
+        }
+        d = (1 + k * phi) / e;
+
+        cout << "Public Key (e, n): (" << e << ", " << n << ")\n";
+        cout << "Private Key (d, n): (" << d << ", " << n << ")\n";
+        data = sraEncryptAlgorithm(data, e, n);
+
+        cout << "\nHasil enkripsi : " << data << endl;
     }
     else if (pilihan == 2)
     {
-        cout << "Masukkan data yang ingin di-dekripsi : ";
-        getline(cin, data);
-        cout << "Hasil dekripsi : " << data << endl;
+        int n, d, blockCount;
+        string vernamKey, caesarKey;
+        int scytaleKey;
+
+        cout << "Masukkan nilai n dan d untuk proses dekripsi." << endl;
+        cout << "Masukkan nilai n: ";
+        cin >> n;
+        cin.ignore();
+        cout << "Masukkan nilai d: ";
+        cin >> d;
+        cin.ignore();
+        cout << "Masukkan total block: ";
+        cin >> blockCount;
+        cin.ignore();
+
+        cout << "Masukkan cipherteks untuk didekripsi (masukkan blok-blok angka): " << endl;
+        int cipherBlock;
+        for (int i = 0; i < blockCount; i++)
+        {
+            cin >> cipherBlock;
+            data += decryptChar(cipherBlock, d, n); // Dekripsi
+        }
+        cin.ignore();
+
+        cout << "Masukkan kunci vernam = ";
+        getline(cin, vernamKey);
+        data = vernamCipher(data, vernamKey);
+
+        cout << "Masukkan kunci caesar = ";
+        getline(cin, caesarKey);
+        data = caesarCipher(2, caesarKey, data);
+
+        cout << "Masukkan kunci scytale = ";
+        cin >> scytaleKey;
+        data = scytaleAlgorithm(2, scytaleKey, data);
+
+        cout << "\nHasil dekripsi : " << data << endl;
     }
     else
     {
@@ -340,9 +492,11 @@ string caesarCipher(int status, string kunci, string data)
 
     string value = "";
     int indexKey = 0;
-    int awal = 65;
+    int awalBesar = 65;
+    int awalKecil = 97;
+    int awal;
 
-    transform(data.begin(), data.end(), data.begin(), ::toupper);
+    // transform(data.begin(), data.end(), data.begin(), ::toupper);
     transform(kunci.begin(), kunci.end(), kunci.begin(), ::toupper);
     int lengthKey = kunci.length();
 
@@ -356,8 +510,9 @@ string caesarCipher(int status, string kunci, string data)
                 continue;
             }
             indexKey = indexKey == lengthKey ? 0 : indexKey;
+            awal = isupper(data[i]) ? awalBesar : awalKecil;
 
-            value = value + char((((int(data[i]) - awal) + (int(kunci[indexKey]) - awal)) % 26) + awal);
+            value = value + char((((int(data[i]) - awal) + (int(kunci[indexKey]) - awalBesar)) % 26) + awal);
             indexKey++;
         }
     }
@@ -371,8 +526,9 @@ string caesarCipher(int status, string kunci, string data)
                 continue;
             }
             indexKey = indexKey == lengthKey ? 0 : indexKey;
+            awal = isupper(data[i]) ? awalBesar : awalKecil;
 
-            value = value + char(((int(data[i]) - awal) - (int(kunci[indexKey]) - awal) + 26) % 26 + awal);
+            value = value + char(((int(data[i]) - awal) - (int(kunci[indexKey]) - awalBesar) + 26) % 26 + awal);
             indexKey++;
         }
     }
@@ -397,7 +553,7 @@ string generateRandomKey(int length)
     return key;
 }
 
-string vernamCipher(int status, string data, string key)
+string vernamCipher(string data, string key)
 {
     string value = "";
 
@@ -416,6 +572,59 @@ string vernamCipher(int status, string data, string key)
     for (int i = 0; i < data.length(); i++)
     {
         value += DATACHAR[DATACHAR.find(data[i]) ^ DATACHAR.find(key[i])];
+    }
+    return value;
+}
+
+// SRA FUNCTION
+// Fungsi untuk menghitung GCD (Greatest Common Divisor)
+int gcd(int a, int h)
+{
+    while (1)
+    {
+        int temp = a % h;
+        if (temp == 0)
+            return h;
+        a = h;
+        h = temp;
+    }
+}
+
+// Fungsi untuk melakukan eksponen modular
+long long modExp(long long base, long long exp, long long mod)
+{
+    long long result = 1;
+    while (exp > 0)
+    {
+        if (exp % 2 == 1) // Jika eksponen ganjil
+            result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp = exp / 2;
+    }
+    return result;
+}
+
+// Fungsi untuk mengenkripsi pesan
+long long encryptChar(char ch, long long e, long long n)
+{
+    long long m = (int)ch;  // Konversi karakter menjadi ASCII
+    return modExp(m, e, n); // Enkripsi: c = (m^e) % n
+}
+
+// Fungsi untuk mendekripsi pesan
+char decryptChar(long long cipher, long long d, long long n)
+{
+    long long m = modExp(cipher, d, n); // Dekripsi: m = (c^d) % n
+    return (char)m;                     // Konversi angka kembali ke karakter
+}
+
+string sraEncryptAlgorithm(string data, int e, int n)
+{
+    string value = "";
+    for (int i = 0; i < data.length(); i++)
+    {
+        value += to_string(encryptChar(data[i], e, n));
+        value += " ";
     }
     return value;
 }
