@@ -556,7 +556,12 @@ string vernamCipher(string data, string key)
 {
     string value = "";
 
-    if (data.empty())
+    if (data.length() != key.length())
+    {
+        cout << "Data tidak boleh kosong.\n";
+        return "Panjang data dengan kunci tidak sama, mohon cek kembali!\n";
+        return "";
+    }else if (data.empty())
     {
         cout << "Data tidak boleh kosong.\n";
         return "";
